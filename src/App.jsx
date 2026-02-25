@@ -80,8 +80,8 @@ function CrmApp() {
             />
 
             {/* Main content with left margin for sidebar */}
-            <main className="ml-64 min-h-screen">
-                <div className="p-8 max-w-6xl mx-auto">
+            <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+                <div className="p-4 md:p-8 max-w-6xl mx-auto">
                     {activeView === 'dashboard' && (
                         <Dashboard
                             setActiveView={setActiveView}

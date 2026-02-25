@@ -107,7 +107,7 @@ function PlanModal({ tipo, plan, onSave, onClose }) {
     return (
         <>
             <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={onClose} />
-            <div className="fixed right-0 top-0 h-full w-full max-w-xl bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col overflow-hidden">
+            <div className="fixed right-0 top-0 h-full w-full sm:max-w-xl bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col overflow-hidden">
 
                 {/* Header */}
                 <div className="flex items-start justify-between p-6 border-b border-slate-200 dark:border-slate-700 gap-4">
@@ -583,8 +583,8 @@ export default function PlansView() {
                     return (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === tab.id
-                                    ? 'bg-white dark:bg-slate-700 text-brand-700 dark:text-brand-400 shadow-sm'
-                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                                ? 'bg-white dark:bg-slate-700 text-brand-700 dark:text-brand-400 shadow-sm'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                                 }`}>
                             <Icon className="w-4 h-4" />
                             {tab.label}

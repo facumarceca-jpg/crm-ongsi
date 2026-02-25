@@ -119,7 +119,7 @@ export default function NgoModal({ ong, onClose }) {
             />
 
             {/* Panel */}
-            <div className="fixed right-0 top-0 h-full w-full max-w-xl bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col overflow-hidden">
+            <div className="fixed right-0 top-0 h-full w-full sm:max-w-xl bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="flex items-start justify-between p-6 border-b border-slate-200 dark:border-slate-700 gap-4">
                     <div className="flex-1 min-w-0">
