@@ -12,7 +12,7 @@ const TABS = [
     { id: 'equipo', label: 'Equipo', icon: Users },
 ]
 
-const ESTADOS_PLAN = ['Pendiente', 'Activo', 'Vencido', 'Cancelado']
+const ESTADOS_PLAN = ['Pendiente de Contacto', 'En Seguimiento', 'Activo', 'Rechazado']
 
 const PRODUCTOS = [
     'Módulo Cultivo',
@@ -23,10 +23,10 @@ const PRODUCTOS = [
 ]
 
 const ESTADO_COLOR = {
-    Activo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    Pendiente: 'bg-amber-100  text-amber-700  dark:bg-amber-900/30 dark:text-amber-400',
-    Vencido: 'bg-red-100    text-red-700    dark:bg-red-900/30 dark:text-red-400',
-    Cancelado: 'bg-slate-100  text-slate-500  dark:bg-slate-700/50 dark:text-slate-400',
+    'Activo': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'En Seguimiento': 'bg-blue-100    text-blue-700    dark:bg-blue-900/30 dark:text-blue-400',
+    'Pendiente de Contacto': 'bg-amber-100   text-amber-700   dark:bg-amber-900/30 dark:text-amber-400',
+    'Rechazado': 'bg-red-100     text-red-700     dark:bg-red-900/30 dark:text-red-400',
 }
 
 const LS_KEYS = { ong: 'crm_planes_ong', individual: 'crm_planes_individual', equipo: 'crm_planes_equipo' }
@@ -256,7 +256,7 @@ function PlanModal({ tipo, plan, onSave, onClose }) {
 function AddPlanModal({ tipo, onSave, onClose }) {
     const [form, setForm] = useState({
         nombre: '', email: '', telefono: '', plan: PRODUCTOS[0],
-        monto: '', estado: 'Pendiente',
+        monto: '', estado: 'Pendiente de Contacto',
         fechaInicio: new Date().toISOString().slice(0, 10),
         fechaVencimiento: '', proximaAccion: '', personaContacto: '', notas: [],
         ...(tipo === 'equipo' ? { organizacion: '', cantPersonas: '' } : {}),
