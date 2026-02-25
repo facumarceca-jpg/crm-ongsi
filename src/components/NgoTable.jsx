@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { useApp } from '../store/AppContext'
 import StatusBadge from './StatusBadge'
-import { Search, Filter, ChevronRight, Building2, MapPin, Plus } from 'lucide-react'
+import { Search, Filter, ChevronRight, Building2, MapPin, Plus, Download } from 'lucide-react'
 import { PROVINCIAS } from '../data/mockData'
 
 const ALL_ESTADOS = ['Todos', 'Pendiente', 'En Seguimiento', 'Activa', 'Rechazada']
@@ -56,6 +56,33 @@ export default function NgoTable({ filterEstado, onOpenOng, onAddOng }) {
         return new Date(iso + 'T00:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
     }
 
+    const exportCSV = () => {
+        const cols = [
+            'Nombre', 'Email', 'Telefono', 'Persona Contacto',
+            'Instagram', 'Ciudad', 'Provincia', 'Estado',
+            'Sitio Web', 'Proxima Accion',
+        ]
+        const escape = (v) => {
+            if (v == null || v === '') return ''
+            const s = String(v).replace(/"/g, '""')
+            return /[,"\n]/.test(s) ? `"${s}"` : s
+        }
+        const rows = filtered.map(o => [
+            o.nombre, o.email, o.telefono, o.personaContacto,
+            o.instagram, o.ciudad, o.provincia, o.estado,
+            o.sitioWeb, o.proximaAccion,
+        ].map(escape).join(','))
+        const csv = [cols.join(','), ...rows].join('\n')
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        const fecha = new Date().toISOString().slice(0, 10)
+        a.download = `trazapp_ongs_${fecha}.csv`
+        a.click()
+        URL.revokeObjectURL(url)
+    }
+
     return (
         <div className="space-y-5">
             {/* Header */}
@@ -68,15 +95,25 @@ export default function NgoTable({ filterEstado, onOpenOng, onAddOng }) {
                         {filtered.length} registro{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
                     </p>
                 </div>
-                {onAddOng && (
+                <div className="flex items-center gap-2 flex-shrink-0 mt-1">
                     <button
-                        onClick={onAddOng}
-                        className="btn-primary flex items-center gap-2 flex-shrink-0 mt-1"
+                        onClick={exportCSV}
+                        className="btn-ghost flex items-center gap-2 border border-slate-200 dark:border-slate-700"
+                        title="Exportar vista actual como CSV"
                     >
-                        <Plus className="w-4 h-4" />
-                        Nueva ONG
+                        <Download className="w-4 h-4" />
+                        <span className="hidden sm:inline">Exportar CSV</span>
                     </button>
-                )}
+                    {onAddOng && (
+                        <button
+                            onClick={onAddOng}
+                            className="btn-primary flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span className="hidden sm:inline">Nueva ONG</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Filters */}
