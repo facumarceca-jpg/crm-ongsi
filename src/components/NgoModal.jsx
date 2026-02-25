@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useApp } from '../store/AppContext'
 import StatusBadge from './StatusBadge'
-import { LICENCIAS, ESTADOS } from '../data/mockData'
+import { ESTADOS } from '../data/mockData'
 import {
     X,
     Phone,
@@ -14,19 +14,85 @@ import {
     Send,
     Trash2,
     ExternalLink,
-    Tag,
-    ChevronDown,
     Globe,
     Leaf,
+    Pencil,
+    Check,
 } from 'lucide-react'
 
 const ESTADO_LIST = Object.values(ESTADOS)
+
+// Only these columns exist in Supabase — never send unknown fields
+const SUPABASE_COLS = [
+    'id', 'nombre', 'estado', 'provincia', 'ciudad', 'direccion',
+    'telefono', 'email', 'instagram', 'sitioWeb', 'marimbaUrl',
+    'personaContacto', 'proximaAccion', 'notas', 'scraped',
+]
+
+function pickSupabaseCols(obj) {
+    return Object.fromEntries(
+        Object.entries(obj).filter(([k]) => SUPABASE_COLS.includes(k))
+    )
+}
 
 function Section({ title, children }) {
     return (
         <div className="space-y-3">
             <h4 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{title}</h4>
             {children}
+        </div>
+    )
+}
+
+// Editable info row — shows value with a small edit button; clicking turns it into an input
+function EditableRow({ icon: Icon, label, value, onChange, type = 'text', href }) {
+    const [editing, setEditing] = useState(false)
+
+    return (
+        <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{label}</p>
+                {editing ? (
+                    <div className="flex items-center gap-1.5">
+                        <input
+                            type={type}
+                            value={value || ''}
+                            onChange={e => onChange(e.target.value)}
+                            autoFocus
+                            className="input flex-1 py-1 text-sm"
+                        />
+                        <button
+                            onClick={() => setEditing(false)}
+                            className="p-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 flex-shrink-0"
+                        >
+                            <Check className="w-3.5 h-3.5" />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-1.5 group">
+                        {href && value ? (
+                            <a href={href} target="_blank" rel="noopener noreferrer"
+                                className="text-sm font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 truncate">
+                                {value} <ExternalLink className="w-3 h-3 inline flex-shrink-0" />
+                            </a>
+                        ) : (
+                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                                {value || <span className="text-slate-300 dark:text-slate-600">—</span>}
+                            </p>
+                        )}
+                        <button
+                            onClick={() => setEditing(true)}
+                            className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex-shrink-0"
+                            title="Editar"
+                        >
+                            <Pencil className="w-3 h-3" />
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
@@ -58,25 +124,20 @@ export default function NgoModal({ ong, onClose }) {
     const [noteText, setNoteText] = useState('')
     const [saving, setSaving] = useState(false)
 
-    // Sync if ong changes externally
-    useEffect(() => {
-        setForm({ ...ong })
-    }, [ong])
+    useEffect(() => { setForm({ ...ong }) }, [ong])
 
-    // Close on Escape
     useEffect(() => {
         const handler = (e) => { if (e.key === 'Escape') onClose() }
         document.addEventListener('keydown', handler)
         return () => document.removeEventListener('keydown', handler)
     }, [onClose])
 
-    const handleFieldChange = (field, value) => {
-        setForm(prev => ({ ...prev, [field]: value }))
-    }
+    const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
 
     const handleSave = () => {
         setSaving(true)
-        dispatch({ type: 'UPDATE_ONG', payload: form })
+        // Only pass columns that exist in Supabase
+        dispatch({ type: 'UPDATE_ONG', payload: pickSupabaseCols(form) })
         setTimeout(() => setSaving(false), 600)
     }
 
@@ -106,19 +167,14 @@ export default function NgoModal({ ong, onClose }) {
         })
     }
 
-    const mapsUrl = ong.direccion
-        ? `https://maps.google.com/?q=${encodeURIComponent(ong.direccion)}`
+    const mapsUrl = form.direccion
+        ? `https://maps.google.com/?q=${encodeURIComponent(form.direccion)}`
         : null
 
     return (
         <>
-            {/* Backdrop */}
-            <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
-                onClick={onClose}
-            />
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={onClose} />
 
-            {/* Panel */}
             <div className="fixed right-0 top-0 h-full w-full sm:max-w-xl bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="flex items-start justify-between p-6 border-b border-slate-200 dark:border-slate-700 gap-4">
@@ -142,20 +198,27 @@ export default function NgoModal({ ong, onClose }) {
                 {/* Scrollable body */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
 
-                    {/* Contact info */}
+                    {/* Contact info — all editable */}
                     <Section title="Información de Contacto">
+                        <p className="text-xs text-slate-400 -mt-1 flex items-center gap-1">
+                            <Pencil className="w-3 h-3" /> Pasá el cursor sobre un campo para editarlo
+                        </p>
                         <div className="space-y-3">
-                            <InfoRow icon={Phone} label="Teléfono" value={ong.telefono}
-                                href={ong.telefono ? `tel:${ong.telefono}` : null} />
-                            <InfoRow icon={Mail} label="Email" value={ong.email}
-                                href={ong.email ? `mailto:${ong.email}` : null} />
-                            <InfoRow icon={Instagram} label="Instagram" value={ong.instagram}
-                                href={ong.instagram ? `https://instagram.com/${ong.instagram.replace('@', '')}` : null} />
-                            <InfoRow icon={MapPin} label="Dirección" value={ong.direccion}
+                            <EditableRow icon={Phone} label="Teléfono" value={form.telefono}
+                                onChange={v => set('telefono', v)} type="tel"
+                                href={form.telefono ? `tel:${form.telefono}` : null} />
+                            <EditableRow icon={Mail} label="Email" value={form.email}
+                                onChange={v => set('email', v)} type="email"
+                                href={form.email ? `mailto:${form.email}` : null} />
+                            <EditableRow icon={Instagram} label="Instagram" value={form.instagram}
+                                onChange={v => set('instagram', v)}
+                                href={form.instagram ? `https://instagram.com/${form.instagram.replace('@', '')}` : null} />
+                            <EditableRow icon={Globe} label="Sitio Web" value={form.sitioWeb}
+                                onChange={v => set('sitioWeb', v)} type="url"
+                                href={form.sitioWeb || null} />
+                            <EditableRow icon={MapPin} label="Dirección" value={form.direccion}
+                                onChange={v => set('direccion', v)}
                                 href={mapsUrl} />
-                            {ong.sitioWeb && (
-                                <InfoRow icon={Globe} label="Sitio Web" value={ong.sitioWeb} href={ong.sitioWeb} />
-                            )}
                             {ong.marimbaUrl && (
                                 <InfoRow icon={Leaf} label="Perfil Marimba" value="Ver en marimba.com.ar" href={ong.marimbaUrl} />
                             )}
@@ -164,34 +227,17 @@ export default function NgoModal({ ong, onClose }) {
 
                     {/* Qualification */}
                     <Section title="Datos de Calificación">
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                                <label className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
-                                    <Tag className="w-3.5 h-3.5" /> Tipo de Licencia
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        value={form.tipoLicencia || ''}
-                                        onChange={e => handleFieldChange('tipoLicencia', e.target.value)}
-                                        className="select w-full pr-8 appearance-none"
-                                    >
-                                        {LICENCIAS.map(l => <option key={l}>{l}</option>)}
-                                    </select>
-                                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                </div>
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
-                                    <User className="w-3.5 h-3.5" /> Persona de Contacto
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.personaContacto || ''}
-                                    onChange={e => handleFieldChange('personaContacto', e.target.value)}
-                                    placeholder="Nombre y apellido"
-                                    className="input"
-                                />
-                            </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
+                                <User className="w-3.5 h-3.5" /> Persona de Contacto
+                            </label>
+                            <input
+                                type="text"
+                                value={form.personaContacto || ''}
+                                onChange={e => set('personaContacto', e.target.value)}
+                                placeholder="Nombre y apellido"
+                                className="input w-full"
+                            />
                         </div>
                     </Section>
 
@@ -204,7 +250,7 @@ export default function NgoModal({ ong, onClose }) {
                                     {ESTADO_LIST.map(est => (
                                         <button
                                             key={est}
-                                            onClick={() => handleFieldChange('estado', est)}
+                                            onClick={() => set('estado', est)}
                                             className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${form.estado === est
                                                 ? 'bg-brand-600 text-white border-brand-600'
                                                 : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-brand-400 dark:hover:border-brand-500'
@@ -222,7 +268,7 @@ export default function NgoModal({ ong, onClose }) {
                                 <input
                                     type="date"
                                     value={form.proximaAccion || ''}
-                                    onChange={e => handleFieldChange('proximaAccion', e.target.value)}
+                                    onChange={e => set('proximaAccion', e.target.value)}
                                     className="input"
                                 />
                             </div>
@@ -232,7 +278,6 @@ export default function NgoModal({ ong, onClose }) {
                     {/* Notes */}
                     <Section title={`Historial de Notas (${form.notas.length})`}>
                         <div className="space-y-3">
-                            {/* Add note */}
                             <div className="flex gap-2">
                                 <textarea
                                     value={noteText}
@@ -251,7 +296,6 @@ export default function NgoModal({ ong, onClose }) {
                                 </button>
                             </div>
 
-                            {/* Notes list */}
                             {form.notas.length === 0 ? (
                                 <p className="text-sm text-slate-400 text-center py-4">
                                     Sin notas todavía. ¡Agregá la primera! 📝
