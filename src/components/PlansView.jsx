@@ -14,11 +14,13 @@ const TABS = [
 
 const ESTADOS_PLAN = ['Pendiente', 'Activo', 'Vencido', 'Cancelado']
 
-const TIPOS_PLAN = {
-    ong: ['ONG Básico', 'ONG Pro', 'ONG Premium'],
-    individual: ['Individual Básico', 'Individual Pro', 'Individual Premium'],
-    equipo: ['Equipo Starter', 'Equipo Business', 'Equipo Enterprise'],
-}
+const PRODUCTOS = [
+    'Módulo Cultivo',
+    'Módulo Médico / Paciente',
+    'Equipos',
+    'ONG',
+    'Personalizado',
+]
 
 const ESTADO_COLOR = {
     Activo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -149,11 +151,11 @@ function PlanModal({ tipo, plan, onSave, onClose }) {
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <label className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5">
-                                    <Tag className="w-3.5 h-3.5" /> Plan
+                                    <Tag className="w-3.5 h-3.5" /> Producto de Interés
                                 </label>
                                 <div className="relative">
                                     <select value={form.plan || ''} onChange={e => set('plan', e.target.value)} className="select w-full pr-8 appearance-none">
-                                        {TIPOS_PLAN[tipo].map(p => <option key={p}>{p}</option>)}
+                                        {PRODUCTOS.map(p => <option key={p}>{p}</option>)}
                                     </select>
                                     <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                 </div>
@@ -252,9 +254,8 @@ function PlanModal({ tipo, plan, onSave, onClose }) {
 
 // ─── Modal formulario para crear ──────────────────────────────────
 function AddPlanModal({ tipo, onSave, onClose }) {
-    const tiposPlan = TIPOS_PLAN[tipo]
     const [form, setForm] = useState({
-        nombre: '', email: '', telefono: '', plan: tiposPlan[0],
+        nombre: '', email: '', telefono: '', plan: PRODUCTOS[0],
         monto: '', estado: 'Pendiente',
         fechaInicio: new Date().toISOString().slice(0, 10),
         fechaVencimiento: '', proximaAccion: '', personaContacto: '', notas: [],
@@ -298,9 +299,9 @@ function AddPlanModal({ tipo, onSave, onClose }) {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1">Plan *</label>
+                            <label className="block text-xs font-semibold text-slate-500 mb-1">Producto de Interés *</label>
                             <select value={form.plan} onChange={e => set('plan', e.target.value)} className="input w-full" required>
-                                {tiposPlan.map(p => <option key={p}>{p}</option>)}
+                                {PRODUCTOS.map(p => <option key={p}>{p}</option>)}
                             </select>
                         </div>
                         <div>
@@ -457,7 +458,7 @@ function PlanesTable({ tipo, planes, setPlanes }) {
                                     <span className="flex items-center gap-1">Contacto <SortIcon k="nombre" /></span>
                                 </th>
                                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => toggleSort('plan')}>
-                                    <span className="flex items-center gap-1">Plan <SortIcon k="plan" /></span>
+                                    <span className="flex items-center gap-1">Producto <SortIcon k="plan" /></span>
                                 </th>
                                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer select-none" onClick={() => toggleSort('estado')}>
                                     <span className="flex items-center gap-1">Estado <SortIcon k="estado" /></span>
