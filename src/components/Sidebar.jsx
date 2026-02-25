@@ -43,7 +43,7 @@ export default function Sidebar({ activeView, setActiveView, dark, toggleDark, c
                         <Leaf className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-sm font-bold text-slate-900 dark:text-white leading-none">CannaCRM</h1>
+                        <h1 className="text-sm font-bold text-slate-900 dark:text-white leading-none">TrazAPP Comercial</h1>
                         <p className="text-xs text-slate-400 mt-0.5">Trazabilidad Genética</p>
                     </div>
                     {/* Close button on mobile */}
@@ -126,7 +126,7 @@ export default function Sidebar({ activeView, setActiveView, dark, toggleDark, c
                     <div className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center">
                         <Leaf className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">CannaCRM</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">TrazAPP Comercial</span>
                 </div>
                 <button
                     onClick={toggleDark}
