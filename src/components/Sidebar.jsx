@@ -10,6 +10,7 @@ import {
     Sun,
     Moon,
     Map,
+    CreditCard,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
     { id: 'Pendiente', label: 'Pendientes', icon: Clock },
     { id: 'En Seguimiento', label: 'En Seguimiento', icon: Activity },
     { id: 'Rechazada', label: 'Rechazadas', icon: XCircle },
+    { id: 'planes', label: 'Planes TrazAPP', icon: CreditCard },
 ]
 
 export default function Sidebar({ activeView, setActiveView, dark, toggleDark, counts }) {
@@ -42,7 +44,7 @@ export default function Sidebar({ activeView, setActiveView, dark, toggleDark, c
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                 {NAV_ITEMS.map(item => {
                     const Icon = item.icon
-                    const count = item.id !== 'dashboard' && item.id !== 'all' && item.id !== 'mapa'
+                    const count = item.id !== 'dashboard' && item.id !== 'all' && item.id !== 'mapa' && item.id !== 'planes'
                         ? counts[item.id] ?? 0
                         : item.id === 'all'
                             ? counts.total

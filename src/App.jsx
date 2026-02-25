@@ -6,6 +6,7 @@ import NgoTable from './components/NgoTable'
 import NgoModal from './components/NgoModal'
 import AddOngModal from './components/AddOngModal'
 import MapView from './components/MapView'
+import PlansView from './components/PlansView'
 import { XCircle } from 'lucide-react'
 
 function CrmApp() {
@@ -89,6 +90,9 @@ function CrmApp() {
                     )}
                     {activeView === 'mapa' && (
                         <MapView onOpenOng={handleOpenOng} />
+                    )}
+                    {activeView === 'planes' && (
+                        <PlansView />
                     )}
                     {isTableView && (
                         <NgoTable
