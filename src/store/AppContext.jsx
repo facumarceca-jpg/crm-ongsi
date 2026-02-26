@@ -92,6 +92,10 @@ export function AppProvider({ children }) {
                         .update({ notas: newNotes })
                         .eq('id', action.payload.ongId)
                     if (error) throw error
+                    // Update local state so UI reflects saved data
+                    setOngs(prev => prev.map(o =>
+                        o.id === action.payload.ongId ? { ...o, notas: newNotes } : o
+                    ))
                     break
                 }
                 case 'DELETE_NOTE': {
@@ -103,6 +107,10 @@ export function AppProvider({ children }) {
                         .update({ notas: newNotes })
                         .eq('id', action.payload.ongId)
                     if (error) throw error
+                    // Update local state
+                    setOngs(prev => prev.map(o =>
+                        o.id === action.payload.ongId ? { ...o, notas: newNotes } : o
+                    ))
                     break
                 }
                 default:
