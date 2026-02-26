@@ -62,10 +62,17 @@ export function AppProvider({ children }) {
                     break
                 }
                 case 'UPDATE_ONG': {
+                    // Filter payload to only columns that exist in Supabase
+                    // (keys from the originally-fetched record = real DB columns)
+                    const existing = ongs.find(o => o.id === action.payload.id)
+                    const allowedKeys = existing ? Object.keys(existing) : Object.keys(action.payload)
+                    const safePayload = Object.fromEntries(
+                        Object.entries(action.payload).filter(([k]) => allowedKeys.includes(k))
+                    )
                     const { error } = await supabase
                         .from('ongs')
-                        .update(action.payload)
-                        .eq('id', action.payload.id)
+                        .update(safePayload)
+                        .eq('id', safePayload.id)
                     if (error) throw error
                     break
                 }
